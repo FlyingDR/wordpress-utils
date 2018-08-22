@@ -1,7 +1,10 @@
 <?php
 
-namespace Flying\Wordpress\Util;
+namespace Flying\Wordpress\Twig;
 
+use Flying\Wordpress\Util\CssUtils;
+use Flying\Wordpress\Util\PostUtils;
+use Flying\Wordpress\Util\StringUtils;
 use Timber\ImageHelper;
 
 /**
