@@ -18,6 +18,8 @@
         "php": "^5.6|^7.0"
     },
     "require-dev": {
-        "johnpbloch/wordpress-core": "^4.2"
+        "johnpbloch/wordpress-core": "^4.2",
+        "timber/timber": "1.0",
+        "flying/wordpress-client-assets-manager": "1.0"
     }
 }
