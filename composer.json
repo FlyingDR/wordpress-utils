@@ -1,0 +1,23 @@
+{
+    "name": "flying/wordpress-utils",
+    "description": "Collection of various utility functions to use on Wordpress sites",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexander Grimalovsky",
+            "email": "alexander.grimalovsky@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Flying\\Wordpress\\": "src"
+        }
+    },
+    "require": {
+        "php": "^5.6|^7.0"
+    },
+    "require-dev": {
+        "johnpbloch/wordpress-core": "^4.2"
+    }
+}
