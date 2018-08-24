@@ -29,6 +29,7 @@ abstract class Site extends TimberSite
     private static $pageTemplates = [
         '{type}-{slug}.twig',
         'page-{slug}.twig',
+        '{slug}.twig',
         '{type}.twig',
         'page.twig',
     ];
