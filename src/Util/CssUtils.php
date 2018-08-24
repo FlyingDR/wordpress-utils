@@ -20,7 +20,7 @@ class CssUtils
             } elseif (is_string($arg)) {
                 $parts = explode(' ', $arg);
             }
-            array_walk($parts, function ($cl) use (&$classes) {
+            array_walk_recursive($parts, function ($cl) use (&$classes) {
                 $cl = trim($cl);
                 if ($cl !== '' && !in_array($cl, $classes, true)) {
                     $classes[] = $cl;
