@@ -10,12 +10,12 @@ use Flying\Wordpress\Query\QueryBuilder;
 class PostUtils
 {
     /**
-     * Get Wordpress page by given slug
+     * Get Id of Wordpress page by given slug
      *
      * @param string $slug
-     * @return string|false
+     * @return int|null
      */
-    public static function getPageUrlBySlug($slug)
+    public static function getPageIdBySlug($slug)
     {
         /** @var $wpdb \wpdb */
         global $wpdb;
@@ -33,8 +33,20 @@ class PostUtils
             } else {
                 $id = (int)$slug;
             }
-            $cache[$slug] = get_permalink($id);
+            $cache[$slug] = $id !== 0 ? $id : null;
         }
         return $cache[$slug];
+    }
+
+    /**
+     * Get Wordpress page by given slug
+     *
+     * @param string $slug
+     * @return string|false
+     */
+    public static function getPageUrlBySlug($slug)
+    {
+        $id = self::getPageIdBySlug($slug);
+        return $id !== null ? get_permalink($id) : false;
     }
 }
