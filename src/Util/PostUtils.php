@@ -28,7 +28,9 @@ class PostUtils
                 $id = (int)$wpdb->get_var(QueryBuilder::buildQuery('select id from ?? where post_name=? and post_type in (?) limit 1', [
                     $wpdb->posts,
                     $slug,
-                    array_keys(get_post_types(['public' => true])),
+                    array_keys(array_filter(get_post_types(['public' => true]), function ($v) {
+                        return $v !== 'attachment';
+                    })),
                 ]));
             } else {
                 $id = (int)$slug;
