@@ -19,9 +19,9 @@
         "ext-iconv": "*"
     },
     "require-dev": {
-        "johnpbloch/wordpress-core": "^4.2",
-        "timber/timber": "1.0",
-        "flying/wordpress-client-assets-manager": "1.0",
+        "johnpbloch/wordpress-core": "^4.2|^5.0",
+        "timber/timber": "^1.0",
+        "flying/wordpress-client-assets-manager": "^1.0",
         "twig/twig": "^1.34|^2.0",
         "cocur/slugify": "^3.1"
     },
