@@ -40,7 +40,17 @@ class TwigHelper
         // Workaround against Timber issue as of 1.6.0
         // @see https://github.com/timber/timber/issues/1435
         $twig->addFilter(new \Twig_SimpleFilter('downscale', function ($src, $w, $h = 0, $crop = 'default', $force = false) {
-            $editor = \wp_get_image_editor($src);
+            $isrc = $src;
+            $uDir = wp_get_upload_dir();
+            if (strpos($src, $uDir['baseurl']) === 0) {
+                // This is url to image which resides
+                $tsrc = str_replace($uDir['baseurl'], $uDir['basedir'], $src);
+                if (is_file($tsrc)) {
+                    $isrc = $tsrc;
+                }
+            }
+
+            $editor = \wp_get_image_editor($isrc);
             if (!($editor instanceof \WP_Image_Editor)) {
                 return $src;
             }
