@@ -6,6 +6,9 @@ use Flying\Wordpress\Util\CssUtils;
 use Flying\Wordpress\Util\PostUtils;
 use Flying\Wordpress\Util\StringUtils;
 use Timber\ImageHelper;
+use Twig\Environment;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
  * Collection of Twig filters and functions
@@ -19,27 +22,27 @@ class TwigHelper
      * @param \Twig_Environment $twig
      * @return \Twig_Environment
      */
-    public static function register(\Twig_Environment $twig)
+    public static function register(Environment $twig)
     {
         // Get page url by its slug
-        $twig->addFunction(new \Twig_SimpleFunction('page_url', [PostUtils::class, 'getPageUrlBySlug']));
+        $twig->addFunction(new TwigFunction('page_url', [PostUtils::class, 'getPageUrlBySlug']));
 
         // Construct CSS classes list from given list of arguments
-        $twig->addFunction(new \Twig_SimpleFunction('cl', [CssUtils::class, 'classList']));
+        $twig->addFunction(new TwigFunction('cl', [CssUtils::class, 'classList']));
 
         // Retrieve domain from given url
-        $twig->addFilter(new \Twig_SimpleFilter('domain', function ($url) {
+        $twig->addFilter(new TwigFilter('domain', function ($url) {
             $p = parse_url($url);
             return array_key_exists('host', $p) ? $p['host'] : '';
         }));
 
         // Convert given string to slug-alike string
-        $twig->addFilter(new \Twig_SimpleFilter('to_slug', [StringUtils::class, 'toSlug']));
+        $twig->addFilter(new TwigFilter('to_slug', [StringUtils::class, 'toSlug']));
 
         // Resize image without allowing to scale it up
         // Workaround against Timber issue as of 1.6.0
         // @see https://github.com/timber/timber/issues/1435
-        $twig->addFilter(new \Twig_SimpleFilter('downscale', function ($src, $w, $h = 0, $crop = 'default', $force = false) {
+        $twig->addFilter(new TwigFilter('downscale', function ($src, $w, $h = 0, $crop = 'default', $force = false) {
             $isrc = $src;
             $uDir = wp_get_upload_dir();
             if (strpos($src, $uDir['baseurl']) === 0) {
