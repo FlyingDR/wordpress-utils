@@ -9,35 +9,30 @@ use Flying\Wordpress\Query\QueryBuilder;
  */
 class PostUtils
 {
-    /**
-     * Get Id of Wordpress page by given slug
-     *
-     * @param string $slug
-     * @return int|null
-     */
-    public static function getPageIdBySlug($slug)
-    {
-        /** @var $wpdb \wpdb */
-        global $wpdb;
-        static $cache = [];
+    /** @type array<string, ?int> */
+    private static array $cache = [];
 
-        if (!array_key_exists($slug, $cache)) {
-            if (is_string($slug) && (!is_numeric($slug))) {
-                /** @noinspection SqlResolve */
-                /** @noinspection SqlNoDataSourceInspection */
-                $id = (int)$wpdb->get_var(QueryBuilder::buildQuery('select id from ?? where post_name=? and post_type in (?) limit 1', [
+    /**
+     * Get Id of WordPress page by given slug
+     */
+    public static function getPageIdBySlug(string $slug): ?int
+    {
+        return self::$cache[$slug] ??= (static function (string $slug): ?int {
+            $wpdb = $GLOBALS['wpdb'] ?? null;
+            if (!$wpdb instanceof \wpdb) {
+                return null;
+            }
+            if (is_numeric($slug)) {
+                $id = $slug;
+            } else {
+                $id = $wpdb->get_var(QueryBuilder::buildQuery('select id from ?? where post_name=? and post_type in (?) limit 1', [
                     $wpdb->posts,
                     $slug,
-                    array_keys(array_filter(get_post_types(['public' => true]), function ($v) {
-                        return $v !== 'attachment';
-                    })),
+                    array_keys(array_filter(get_post_types(['public' => true]), static fn(string $v): bool => $v !== 'attachment')),
                 ]));
-            } else {
-                $id = (int)$slug;
             }
-            $cache[$slug] = $id !== 0 ? $id : null;
-        }
-        return $cache[$slug];
+            return $id !== null && (int)$id !== 0 ? (int)$id : null;
+        })($slug);
     }
 
     /**
@@ -46,7 +41,7 @@ class PostUtils
      * @param string $slug
      * @return string|false
      */
-    public static function getPageUrlBySlug($slug)
+    public static function getPageUrlBySlug(string $slug)
     {
         $id = self::getPageIdBySlug($slug);
         return $id !== null ? get_permalink($id) : false;

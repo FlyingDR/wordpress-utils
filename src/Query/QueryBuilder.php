@@ -11,27 +11,25 @@ class QueryBuilder
      * (for example, if you want to pass table or column name as parameter). Please also note that NULL and
      * boolean values are not allowed to be query parameters.
      *
-     * @param string $query         SQL query text
-     * @param array|mixed $bindings OPTIONAL List of bindings for this query
-     * @param boolean $isUpdate     TRUE/FALSE to force given query to be treated as update/non-update, NULL to autodetect it
-     * @return string               Query text with applied bindings
+     * @param string $query          SQL query text
+     * @param array|mixed $bindings  OPTIONAL List of bindings for this query
+     * @param boolean|null $isUpdate TRUE/FALSE to force a given query to be treated as update/non-update, NULL to autodetect it
+     * @return string                Query text with applied bindings
      * @throws \RuntimeException
      */
-    public static function buildQuery($query, $bindings = null, $isUpdate = null)
+    public static function buildQuery(string $query, $bindings = null, ?bool $isUpdate = null): string
     {
-        $escape = function ($v) {
-            return strtr($v, [
-                chr(34) => chr(92) . chr(34),   // Double quote
-                chr(39) => chr(92) . chr(39),   // Single quote
-                chr(92) => chr(92) . chr(92),   // Slash
-            ]);
-        };
-        // Check, if it is UPDATE query. For this type of queries query patching for NULL value should be avoided
+        $escape = static fn(string $v): string => strtr($v, [
+            chr(34) => chr(92) . chr(34),   // Double quote
+            chr(39) => chr(92) . chr(39),   // Single quote
+            chr(92) => chr(92) . chr(92),   // Slash
+        ]);
+        // Check, if it is UPDATE query. For this type of queries, query patching for NULL value should be avoided
         if ($isUpdate === null) {
-            $isUpdate = (strtolower(strtok($query, ' ')) === 'update');
+            $isUpdate = strtolower(strtok($query, ' ')) === 'update';
         }
         if (!is_array($bindings)) {
-            $bindings = ($bindings !== null) ? [$bindings] : [];
+            $bindings = $bindings !== null ? [$bindings] : [];
         }
         // Count the number of bindings available into given SQL query
         preg_match_all('/\?+/', $query, $count);
@@ -41,7 +39,7 @@ class QueryBuilder
             return $query;
         }
 
-        if ((!is_array($bindings)) || (count($bindings) !== $count)) {
+        if (!is_array($bindings) || count($bindings) !== $count) {
             // We have some placeholders in a query, but have no bindings for them
             // or bindings count is not the same as placeholders count
             throw new \RuntimeException('Given list of bindings doesn\'t match number of placeholders into SQL query');
@@ -57,7 +55,7 @@ class QueryBuilder
             if ($value === null) {
                 // Check, if we have '=' or '<>' condition - they must be replaced
                 // with 'IS NULL' and 'IS NOT NULL' respectively (but not for UPDATE queries)
-                if ((!$isUpdate) && preg_match('/^(.*?)\s*(=|\<\>)\s*$/s', $parts[0], $data)) {
+                if (!$isUpdate && preg_match('/^(.*?)\s*(=|\<\>)\s*$/s', $parts[0], $data)) {
                     /** @noinspection NestedPositiveIfStatementsInspection */
                     if (array_key_exists(2, $data)) {
                         if ($data[2] === '=') {
@@ -81,12 +79,11 @@ class QueryBuilder
                 $bindings[$key] = 0;
             } elseif (is_array($value)) {
                 $tq = substr(str_repeat('?,', count($value)), 0, -1);
-                $tv = self::buildQuery($tq, $value, $isUpdate);
-                $bindings[$key] = $tv;
-            } elseif ((is_string($value) || is_numeric($value)) && array_key_exists(1, $parts) && ($parts[1] === '')) {
-                // We have several '?' chars for this binding. It mean that we must not quote it but place it "as is" instead
+                $bindings[$key] = self::buildQuery($tq, $value, $isUpdate);
+            } elseif ((is_string($value) || is_numeric($value)) && array_key_exists(1, $parts) && $parts[1] === '') {
+                // We have several '?' chars for this binding. It means that we must not quote it but place it "as is" instead
                 // Skip all empty query parts
-                while (array_key_exists(1, $parts) && ($parts[1] === '')) {
+                while (array_key_exists(1, $parts) && $parts[1] === '') {
                     $result[] = array_shift($parts);
                 }
             } elseif (preg_match('/^-?0+[1-9]+/', $value)) {
@@ -109,6 +106,7 @@ class QueryBuilder
         array_unshift($bindings, $query);
         $query = @sprintf(...$bindings);
         // If bindings applying failed for some reason - we need to throw an error, otherwise return resulted query
+        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         if ($query === false) {
             throw new \RuntimeException('Failed to apply bindings list to a query');
         }

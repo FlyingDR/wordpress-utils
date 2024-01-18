@@ -6,10 +6,8 @@ class HtmlUtils
 {
     /**
      * List of HTML tags that have no closing tag
-     *
-     * @var array
      */
-    protected static $emptyHtmlTags = [
+    private static array $emptyHtmlTags = [
         'area',
         'base',
         'basefont',
@@ -33,10 +31,8 @@ class HtmlUtils
     ];
     /**
      * List of HTML attributes that only have meaning being non-empty
-     *
-     * @var array
      */
-    protected static $nonEmptyHtmlAttrs = [
+    private static array $nonEmptyHtmlAttrs = [
         'id',
         'class',
         'style',
@@ -45,13 +41,13 @@ class HtmlUtils
     /**
      * Generate HTML tag with given attributes and content
      *
-     * @param string $tag      HTML tag name (also tag#id, tag.class, tag.classA.classB, tag.class#id)
-     * @param array $attrs     OPTIONAL List of attributes for HTML tag (can be skipped)
-     * @param string $content  OPTIONAL Tag contents
-     * @param boolean $newline OPTIONAL TRUE to add newline character at the end of tag (or "-" or "=" at last char of tag name)
+     * @param string $tag          HTML tag name (also tag#id, tag.class, tag.classA.classB, tag.class#id)
+     * @param array|null $attrs    OPTIONAL List of attributes for HTML tag
+     * @param string|null $content OPTIONAL Tag contents
+     * @param boolean $newline     OPTIONAL TRUE to add newline character at the end of tag (or "-" or "=" at last char of tag name)
      * @return string
      */
-    public static function tag($tag, $attrs = null, $content = null, $newline = false)
+    public static function tag(string $tag, array $attrs = [], ?string $content = null, bool $newline = false): string
     {
         if (!is_array($attrs)) {
             $newline = (boolean)$content;
@@ -64,13 +60,13 @@ class HtmlUtils
             $tag = (string)substr($tag, 0, -1);
         }
         $t = explode('#', $tag, 2);
-        $tag = array_shift($t);
+        $tag = (string)array_shift($t);
         $t = array_shift($t);
         if ((string)$t !== '') {
             $attrs['id'] = $t;
         }
         $t = explode('.', $tag);
-        $tag = array_shift($t);
+        $tag = (string)array_shift($t);
         if (count($t)) {
             if (!array_key_exists('class', $attrs)) {
                 $attrs['class'] = [];
@@ -97,20 +93,21 @@ class HtmlUtils
      *
      * @param array $attrs List of attributes to render
      * @return string
+     * @throws \JsonException
      */
-    public static function attrs(array $attrs)
+    public static function attrs(array $attrs): string
     {
         $html = '';
         foreach ($attrs as $name => $value) {
             $name = htmlspecialchars($name, ENT_COMPAT, 'utf-8');
-            if (('constraints' === $name) || (strpos($name, 'on') === 0)) {
+            if ('constraints' === $name || str_starts_with($name, 'on')) {
                 if (!is_scalar($value)) {
-                    $value = json_encode($value);
+                    $value = json_encode($value, JSON_THROW_ON_ERROR);
                 }
                 $value = preg_replace('/"([^"]*)":/', '$1:', $value);
-            } elseif (strpos($name, 'data-') === 0) {
+            } elseif (str_starts_with($name, 'data-')) {
                 if (!is_scalar($value)) {
-                    $value = json_encode($value);
+                    $value = json_encode($value, JSON_THROW_ON_ERROR);
                 }
                 $value = htmlspecialchars($value, ENT_COMPAT, 'utf-8');
             } else {
@@ -119,17 +116,17 @@ class HtmlUtils
                 }
                 $value = htmlspecialchars($value, ENT_COMPAT, 'utf-8');
             }
-            if ('id' === $name && strpos($value, '[') !== false) {
-                if ('[]' === substr($value, -2)) {
+            if ('id' === $name && str_contains($value, '[')) {
+                if (str_ends_with($value, '[]')) {
                     $value = substr($value, 0, -2);
                 }
                 $value = trim($value, ']');
                 $value = str_replace(['][', '['], '-', $value);
             }
-            if (($value === '') && in_array($name, self::$nonEmptyHtmlAttrs, true)) {
+            if ($value === '' && in_array($name, self::$nonEmptyHtmlAttrs, true)) {
                 continue;
             }
-            if (strpos($value, '"') !== false) {
+            if (str_contains($value, '"')) {
                 $html .= ' ' . $name . "='" . $value . "'";
             } else {
                 $html .= ' ' . $name . '="' . $value . '"';
@@ -140,13 +137,8 @@ class HtmlUtils
 
     /**
      * Trim tag that surrounds given content and return result
-     *
-     * @param string $content
-     * @param string $tag
-     * @param boolean $endTag
-     * @return string
      */
-    public static function trimTag($content, $tag = null, $endTag = true)
+    public static function trimTag(string $content, ?string $tag = null, bool $endTag = true): string
     {
         $regexp = '/^(\s*)\<' . ($tag ?: '[a-z\-]+') . '\s*[^\>]*\>(.*?)' . ($endTag ? '\<\/' . ($tag ?: '[a-z\-]+') . '>' : '') . '(\s*)$/usi';
         return preg_replace($regexp, '\1\2\3', $content);

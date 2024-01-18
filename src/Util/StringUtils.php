@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection DevelopmentDependenciesUsageInspection */
 
 namespace Flying\Wordpress\Util;
 
@@ -9,41 +9,36 @@ use Cocur\Slugify\Slugify;
  */
 class StringUtils
 {
-    /**
-     * @var string
-     */
+    /** @type callable(string): string */
     private static $slugMethod;
-    /**
-     * @var Slugify
-     */
-    private static $slugify;
+    private static Slugify $slugify;
 
     /**
      * Convert given string into slug-alike string
-     *
-     * @param string $string
-     * @return string
      */
-    public static function toSlug($string)
+    public static function toSlug(string $string): string
     {
-        if (!self::$slugMethod) {
-            if (iconv('utf-8', 'us-ascii//TRANSLIT', 'ā') === 'a') {
-                self::$slugMethod = 'iconv';
-            } elseif (class_exists(Slugify::class)) {
-                self::$slugMethod = 'slugify';
-                self::$slugify = new Slugify();
-            } else {
-                throw new \RuntimeException('There is no available method for generating slugs, consider installing cocur/slugify library');
+        self::$slugMethod ??= (static function (): callable {
+            if (class_exists(Slugify::class)) {
+                return [self::class, 'toSlugUsingSlugify'];
             }
-        }
-        switch (self::$slugMethod) {
-            case 'iconv':
-                return strtolower(preg_replace('/\s+/', '-', trim(iconv('utf-8', 'us-ascii//TRANSLIT', $string))));
-                break;
-            case 'slugify':
-                return self::$slugify->slugify($string);
-                break;
-        }
-        return $string;
+            if (function_exists('iconv') && iconv('utf-8', 'us-ascii//TRANSLIT', 'ā') === 'a') {
+                return [self::class, 'toSlugUsingIconv'];
+            }
+            throw new \RuntimeException('There is no available method for generating slugs, consider installing iconv extension or cocur/slugify library');
+        })();
+
+        return (self::$slugMethod)($string);
+    }
+
+    private static function toSlugUsingIconv(string $string): string
+    {
+        return strtolower(preg_replace('/\s+/', '-', trim(iconv('utf-8', 'us-ascii//TRANSLIT', $string))));
+    }
+
+    private static function toSlugUsingSlugify(string $string): string
+    {
+        self::$slugify ??= new Slugify();
+        return self::$slugify->slugify($string);
     }
 }

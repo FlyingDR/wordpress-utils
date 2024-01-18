@@ -15,7 +15,7 @@ class Filter
      * @param string $filterName
      * @param callable $testFunc
      */
-    public static function removeFilter($filterName, $testFunc)
+    public static function removeFilter(string $filterName, callable $testFunc): void
     {
         /** @var \WP_Hook[] $wp_filter */
         $wp_filter = $GLOBALS['wp_filter'];
@@ -42,10 +42,10 @@ class Filter
      * not as a function but as class method
      *
      * @param callable $filter
-     * @param string $class
+     * @param string|null $class
      * @return boolean
      */
-    public static function isFilterAsMethodReference($filter, $class = null)
+    public static function isFilterAsMethodReference(callable $filter, ?string $class = null): bool
     {
         if ($filter instanceof \Closure) {
             return false;
@@ -57,6 +57,6 @@ class Filter
         if ($class) {
             $result &= $filter[0] instanceof $class;
         }
-        return (boolean)$result;
+        return $result;
     }
 }

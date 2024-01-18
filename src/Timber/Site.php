@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection DevelopmentDependenciesUsageInspection */
 
 namespace Flying\Wordpress\Timber;
 
@@ -11,22 +11,10 @@ use Timber\User;
 
 abstract class Site extends TimberSite
 {
-    /**
-     * @var Post
-     */
-    private static $page;
-    /**
-     * @var Menu
-     */
-    private static $menu;
-    /**
-     * @var User
-     */
-    private static $user;
-    /**
-     * @var array
-     */
-    private static $pageTemplates = [
+    private static Post $page;
+    private static Menu $menu;
+    private static User $user;
+    private static array $pageTemplates = [
         '{type}-{slug}.twig',
         'page-{slug}.twig',
         '{slug}.twig',
@@ -36,47 +24,29 @@ abstract class Site extends TimberSite
 
     /**
      * Get current page as Timber post
-     *
-     * @return Post
      */
-    public static function getPage()
+    public static function getPage(): Post
     {
-        if (!self::$page) {
-            self::$page = new Post();
-        }
-        return self::$page;
+        return self::$page ??= new Post();
     }
 
     /**
      * Get current menu as Timber menu
-     *
-     * @return Menu
      */
-    public static function getMenu()
+    public static function getMenu(): Menu
     {
-        if (!self::$menu) {
-            self::$menu = new Menu();
-        }
-        return self::$menu;
+        return self::$menu ??= new Menu();
     }
 
     /**
      * Get current user as Timber user
-     *
-     * @return User
      */
-    public static function getUser()
+    public static function getUser(): User
     {
-        if (!self::$user) {
-            self::$user = new User();
-        }
-        return self::$user;
+        return self::$user ??= new User();
     }
 
-    /**
-     * @return array
-     */
-    public static function getPageTemplates()
+    public static function getPageTemplates(): array
     {
         return self::$pageTemplates;
     }
@@ -84,7 +54,7 @@ abstract class Site extends TimberSite
     /**
      * @param array|string $templates
      */
-    public static function setPageTemplates($templates)
+    public static function setPageTemplates($templates): void
     {
         self::$pageTemplates = (array)$templates;
     }
@@ -94,28 +64,25 @@ abstract class Site extends TimberSite
      * to allow proper apply of deferred client assets
      * in a case if client assets manager is used
      *
-     * @param array $context
-     * @param string|array $templates
+     * @param array|null $context
+     * @param string|array|null $templates
      * @param boolean $mergeContext
      */
-    public static function renderPage(array $context = null, $templates = null, $mergeContext = true)
+    public static function renderPage(?array $context = null, $templates = null, bool $mergeContext = true): void
     {
-        if ($templates === null) {
-            $templates = self::getPageTemplates();
-        }
+        $templates ??= self::getPageTemplates();
         $templates = (array)$templates;
         $vars = [
             '{type}' => self::getPage()->post_type,
             '{slug}' => self::getPage()->slug,
         ];
-        $templates = array_map(function ($v) use ($vars) {
-            return strtr($v, $vars);
-        }, $templates);
+        $templates = array_map(static fn(string $v): string => strtr($v, $vars), $templates);
         if ($context === null) {
             $context = Timber::get_context();
         } elseif ($mergeContext) {
             $context = array_merge(Timber::get_context(), $context);
         }
+        /** @noinspection UnusedFunctionResultInspection */
         Timber::render($templates, $context);
         if (class_exists(ClientAssetsManager::class)) {
             echo ClientAssetsManager::getInstance()->applyAssets();
