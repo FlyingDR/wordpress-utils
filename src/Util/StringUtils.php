@@ -5,7 +5,7 @@ namespace Flying\Wordpress\Util;
 use Cocur\Slugify\Slugify;
 
 /**
- * Various utility functions that are related to strings processing
+ * Various utility functions that are related to string processing
  */
 class StringUtils
 {

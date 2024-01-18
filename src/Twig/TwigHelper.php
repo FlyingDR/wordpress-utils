@@ -27,7 +27,7 @@ class TwigHelper
         // Get page url by its slug
         $twig->addFunction(new TwigFunction('page_url', [PostUtils::class, 'getPageUrlBySlug']));
 
-        // Construct CSS classes list from given list of arguments
+        // Construct CSS classes list from the given list of arguments
         $twig->addFunction(new TwigFunction('cl', [CssUtils::class, 'classList']));
 
         // Retrieve domain from given url

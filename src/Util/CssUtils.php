@@ -47,7 +47,7 @@ class CssUtils
     }
 
     /**
-     * Add given CSS class to given list of CSS classes
+     * Add given CSS class to the given list of CSS classes
      *
      * @param string|array $classList
      * @param string $class
@@ -64,7 +64,7 @@ class CssUtils
     }
 
     /**
-     * Remove given CSS class from given list of CSS classes
+     * Remove given CSS class from the given list of CSS classes
      *
      * @param string|array $classList
      * @param string $class

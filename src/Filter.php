@@ -3,7 +3,7 @@
 namespace Flying\Wordpress;
 
 /**
- * Wordpress have no convenient way to remove previously registered filter
+ * WordPress have no convenient way to remove previously registered filter
  * because remove_filter() requires knowledge about not just function name,
  * but also filter priority that may not be known
  */
@@ -37,8 +37,8 @@ class Filter
     }
 
     /**
-     * Test if given Wordpress filter callable is actually an object method reference
-     * Useful inside removeFilter() $testFunc in a case if Wordpress filter is defined
+     * Test if given WordPress filter callable is actually an object method reference
+     * Useful inside removeFilter() $testFunc in a case if WordPress filter is defined
      * not as a function but as class method
      *
      * @param callable $filter

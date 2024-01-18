@@ -5,10 +5,10 @@ namespace Flying\Wordpress\Query;
 class QueryBuilder
 {
     /**
-     * Create SQL query text from given query template and bindings list
+     * Create SQL query text from given query template and binding list
      *
-     * NOTE: In addition to normal parameter bindings you can also use "??" binding to avoid parameter quoting
-     * (for example if you want to pass table or column name as parameter). Please also note, that NULL and
+     * NOTE: In addition to normal parameter bindings, you can also use "??" binding to avoid parameter quoting
+     * (for example, if you want to pass table or column name as parameter). Please also note that NULL and
      * boolean values are not allowed to be query parameters.
      *
      * @param string $query         SQL query text
@@ -33,11 +33,11 @@ class QueryBuilder
         if (!is_array($bindings)) {
             $bindings = ($bindings !== null) ? [$bindings] : [];
         }
-        // Count number of bindings available into given SQL query
+        // Count the number of bindings available into given SQL query
         preg_match_all('/\?+/', $query, $count);
         $count = count($count[0]);
         if ($count === 0) {
-            // There is no bindings in this query
+            // There are no bindings in this query
             return $query;
         }
 
@@ -46,13 +46,13 @@ class QueryBuilder
             // or bindings count is not the same as placeholders count
             throw new \RuntimeException('Given list of bindings doesn\'t match number of placeholders into SQL query');
         }
-        // Quote '%' sign in query text so it will not be recognized as sprintf's special char
+        // Quote '%' sign in query text, so it will not be recognized as sprintf's special char
         $query = str_replace('%', '%%', $query);
         // Split query into parts and precess each part separately
         // (because we need to patch query text if we get NULL values)
         $parts = explode('?', $query . ' '); // We need this space char to have last part non-empty even if there is '?' char in last position
         $result = [];
-        // Prepare list of bindings in a way, they can be inserted in query text
+        // Prepare the list of bindings in a way, they can be inserted in query text
         foreach ($bindings as $key => $value) {
             if ($value === null) {
                 // Check, if we have '=' or '<>' condition - they must be replaced

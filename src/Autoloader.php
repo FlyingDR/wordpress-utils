@@ -3,7 +3,7 @@
 namespace Flying\Wordpress;
 
 /**
- * Class autoloader for Wordpress
+ * Class autoloader for WordPress
  */
 class Autoloader
 {

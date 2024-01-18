@@ -5,7 +5,7 @@ namespace Flying\Wordpress\Util;
 use Flying\Wordpress\Query\QueryBuilder;
 
 /**
- * Various utility functions that are related to Wordpress posts
+ * Various utility functions that are related to WordPress posts
  */
 class PostUtils
 {
@@ -41,7 +41,7 @@ class PostUtils
     }
 
     /**
-     * Get Wordpress page by given slug
+     * Get WordPress page by given slug
      *
      * @param string $slug
      * @return string|false

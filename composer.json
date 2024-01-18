@@ -1,6 +1,6 @@
 {
     "name": "flying/wordpress-utils",
-    "description": "Collection of various utility functions to use on Wordpress sites",
+    "description": "Collection of various utility functions to use on WordPress sites",
     "type": "library",
     "license": "MIT",
     "authors": [
