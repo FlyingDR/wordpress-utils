@@ -31,17 +31,17 @@ class CssUtils
     }
 
     /**
-     * @param string|array $classList
+     * @param string|string[] $classList
      * @param string $class
-     * @param callable $modificator
+     * @param callable(array, string): array $modificator
      * @return string
      */
-    private static function updateClassList($classList, string $class, callable $modificator): string
+    private static function updateClassList(array|string $classList, string $class, callable $modificator): string
     {
         if (is_string($classList)) {
             $classList = explode(' ', $classList);
         }
-        $classList = array_map('trim', $classList);
+        $classList = array_map(trim(...), $classList);
         $class = trim($class);
         $classList = $modificator($classList, $class);
         return implode(' ', $classList);
@@ -50,13 +50,13 @@ class CssUtils
     /**
      * Add given CSS class to the given list of CSS classes
      *
-     * @param string|array $classList
+     * @param string|string[] $classList
      * @param string $class
      * @return string
      */
-    public static function addClass($classList, string $class): string
+    public static function addClass(array|string $classList, string $class): string
     {
-        return self::updateClassList($classList, $class, static function (array $classList, $class) {
+        return self::updateClassList($classList, $class, static function (array $classList, string $class): array {
             if (!in_array($class, $classList, true)) {
                 $classList[] = $class;
             }
@@ -67,11 +67,11 @@ class CssUtils
     /**
      * Remove given CSS class from the given list of CSS classes
      *
-     * @param string|array $classList
+     * @param string|string[] $classList
      * @param string $class
      * @return string
      */
-    public static function removeClass($classList, string $class): string
+    public static function removeClass(array|string $classList, string $class): string
     {
         return self::updateClassList(
             $classList,

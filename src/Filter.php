@@ -13,7 +13,7 @@ class Filter
      * Remove Wordpress filter handler registered by plugins based on given test
      *
      * @param string $filterName
-     * @param callable $testFunc
+     * @param callable(callable): bool $testFunc
      */
     public static function removeFilter(string $filterName, callable $testFunc): void
     {
@@ -24,7 +24,7 @@ class Filter
         }
 
         foreach ($wp_filter[$filterName] as $priority => $callbacks) {
-            /** @var callable[] $callbacks */
+            /** @type array<array{function: callable, accepted_args: int}> $callbacks */
             foreach ($callbacks as $callback) {
                 if (!is_array($callback) || !array_key_exists('function', $callback)) {
                     continue;
@@ -50,10 +50,10 @@ class Filter
         if ($filter instanceof \Closure) {
             return false;
         }
-        $result = is_array($filter) &&
-            count($filter) === 2 &&
-            array_key_exists(0, $filter) &&
-            is_object($filter[0]);
+        $result = is_array($filter)
+            && count($filter) === 2
+            && is_object($filter[0] ?? null)
+            && method_exists($filter[0], $filter[1] ?? '');
         if ($class) {
             $result &= $filter[0] instanceof $class;
         }

@@ -52,9 +52,9 @@ abstract class Site extends TimberSite
     }
 
     /**
-     * @param array|string $templates
+     * @param string|string[] $templates
      */
-    public static function setPageTemplates($templates): void
+    public static function setPageTemplates(array|string $templates): void
     {
         self::$pageTemplates = (array)$templates;
     }
@@ -63,12 +63,8 @@ abstract class Site extends TimberSite
      * Wrapper for Timber::render() to render site pages
      * to allow proper apply of deferred client assets
      * in a case if client assets manager is used
-     *
-     * @param array|null $context
-     * @param string|array|null $templates
-     * @param boolean $mergeContext
      */
-    public static function renderPage(?array $context = null, $templates = null, bool $mergeContext = true): void
+    public static function renderPage(?array $context = null, array|string|null $templates = null, bool $mergeContext = true): void
     {
         $templates ??= self::getPageTemplates();
         $templates = (array)$templates;

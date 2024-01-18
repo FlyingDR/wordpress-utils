@@ -47,17 +47,12 @@ class HtmlUtils
      * @param boolean $newline     OPTIONAL TRUE to add newline character at the end of tag (or "-" or "=" at last char of tag name)
      * @return string
      */
-    public static function tag(string $tag, array $attrs = [], ?string $content = null, bool $newline = false): string
+    public static function tag(string $tag, ?array $attrs = [], ?string $content = null, bool $newline = false): string
     {
-        if (!is_array($attrs)) {
-            $newline = (boolean)$content;
-            $content = (string)$attrs;
-            $attrs = [];
-        }
         $tag = trim($tag);
         if (in_array(substr($tag, -1), ['-', '='], true)) {
             $newline = true;
-            $tag = (string)substr($tag, 0, -1);
+            $tag = substr($tag, 0, -1);
         }
         $t = explode('#', $tag, 2);
         $tag = (string)array_shift($t);
@@ -140,6 +135,7 @@ class HtmlUtils
      */
     public static function trimTag(string $content, ?string $tag = null, bool $endTag = true): string
     {
+        /** @noinspection RegExpRedundantEscape */
         $regexp = '/^(\s*)\<' . ($tag ?: '[a-z\-]+') . '\s*[^\>]*\>(.*?)' . ($endTag ? '\<\/' . ($tag ?: '[a-z\-]+') . '>' : '') . '(\s*)$/usi';
         return preg_replace($regexp, '\1\2\3', $content);
     }

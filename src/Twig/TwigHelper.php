@@ -18,9 +18,6 @@ class TwigHelper
     /**
      * Register Twig functions and filters
      * mean to be registered as "get_twig" filter
-     *
-     * @param Environment $twig
-     * @return Environment
      */
     public static function register(Environment $twig): Environment
     {

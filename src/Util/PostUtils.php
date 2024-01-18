@@ -25,7 +25,7 @@ class PostUtils
             if (is_numeric($slug)) {
                 $id = $slug;
             } else {
-                $id = $wpdb->get_var(QueryBuilder::buildQuery('select id from ?? where post_name=? and post_type in (?) limit 1', [
+                $id = $wpdb->get_var(QueryBuilder::buildQuery(/** @lang text */ 'select id from ?? where post_name=? and post_type in (?) limit 1', [
                     $wpdb->posts,
                     $slug,
                     array_keys(array_filter(get_post_types(['public' => true]), static fn(string $v): bool => $v !== 'attachment')),
@@ -37,13 +37,15 @@ class PostUtils
 
     /**
      * Get WordPress page by given slug
-     *
-     * @param string $slug
-     * @return string|false
      */
-    public static function getPageUrlBySlug(string $slug)
+    public static function getPageUrlBySlug(string $slug): ?string
     {
         $id = self::getPageIdBySlug($slug);
-        return $id !== null ? get_permalink($id) : false;
+        if ($id === null) {
+            return null;
+        }
+        $slug = get_permalink($id);
+        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+        return is_string($slug) ? $slug : null;
     }
 }

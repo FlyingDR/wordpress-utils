@@ -12,12 +12,12 @@ class QueryBuilder
      * boolean values are not allowed to be query parameters.
      *
      * @param string $query          SQL query text
-     * @param array|mixed $bindings  OPTIONAL List of bindings for this query
+     * @param mixed|null $bindings   OPTIONAL List of bindings for this query
      * @param boolean|null $isUpdate TRUE/FALSE to force a given query to be treated as update/non-update, NULL to autodetect it
      * @return string                Query text with applied bindings
      * @throws \RuntimeException
      */
-    public static function buildQuery(string $query, $bindings = null, ?bool $isUpdate = null): string
+    public static function buildQuery(string $query, mixed $bindings = null, ?bool $isUpdate = null): string
     {
         $escape = static fn(string $v): string => strtr($v, [
             chr(34) => chr(92) . chr(34),   // Double quote
@@ -55,6 +55,7 @@ class QueryBuilder
             if ($value === null) {
                 // Check, if we have '=' or '<>' condition - they must be replaced
                 // with 'IS NULL' and 'IS NOT NULL' respectively (but not for UPDATE queries)
+                /** @noinspection RegExpRedundantEscape */
                 if (!$isUpdate && preg_match('/^(.*?)\s*(=|\<\>)\s*$/s', $parts[0], $data)) {
                     /** @noinspection NestedPositiveIfStatementsInspection */
                     if (array_key_exists(2, $data)) {
@@ -102,14 +103,13 @@ class QueryBuilder
         }
         // Prepare query text to apply bindings
         $query = (string)preg_replace('/\?+/', '%s', implode('?', array_merge($result, $parts)));
-        // Apply bindings
-        array_unshift($bindings, $query);
-        $query = @sprintf(...$bindings);
-        // If bindings applying failed for some reason - we need to throw an error, otherwise return resulted query
-        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-        if ($query === false) {
-            throw new \RuntimeException('Failed to apply bindings list to a query');
+        try {
+            // Apply bindings
+            $query = sprintf($query, ...$bindings);
+        } catch (\ValueError|\ArgumentCountError $e) {
+            throw new \RuntimeException('Failed to apply bindings list to a query', previous: $e);
         }
+        // If bindings applying failed for some reason - we need to throw an error, otherwise return resulted query
         return trim($query);
     }
 }
