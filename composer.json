@@ -23,7 +23,7 @@
         "flying/wordpress-client-assets-manager": "^1.0",
         "roots/wordpress": "^5|^6",
         "twig/twig": "^2|^3",
-        "cocur/slugify": "^3.1"
+        "cocur/slugify": "^3.1|^4.0"
     },
     "suggest": {
         "cocur/slugify": "Provides ability to generate slugs if there is no transliteration is supported by iconv"
