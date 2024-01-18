@@ -27,5 +27,11 @@
     },
     "suggest": {
         "cocur/slugify": "Provides ability to generate slugs if there is no transliteration is supported by iconv"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "roots/wordpress-core-installer": false
+        }
     }
 }
